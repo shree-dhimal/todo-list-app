@@ -1,10 +1,11 @@
 <template>
     <div class="todo-container">
+        <BackDrop v-if="showBackdrop" :showBackdrop="showBackdrop"/>
         <div class="title">
-            <h1>My TODO lists</h1>
+            <h1>{{task}}</h1>
         </div>
         <div class="input-container">
-            <input type="text" v-model="message" @keyup.enter="updateMessage" placeholder="Add a new task" />
+            <input type="text" v-model="message" @keyup.enter="updateMessage" placeholder="Add a new task" ref="input" />
             <button class="add-button" @click="updateMessage">Add Task</button>
         </div>
         <div class="tasks-section">
@@ -37,17 +38,33 @@
                 </table>
             </div>
         </div>
+        <br>
+        <br>
+        <br>
+        <hr>
+        <div><CalculatorPRO /></div>
+        
     </div>
 </template>
 
 <script>
+import BackDrop from './Backdrop.vue';
+import CalculatorPRO from './Calculator.vue';
+
 export default {
     name: 'ToDo',
+    components: {
+        BackDrop,CalculatorPRO
+  },
+    props: {
+        task: String
+    },
     data() {
         return {
             arr: [],
             status: false,
-            id: 0
+            id: 0,
+            showBackdrop: false,
         };
     },
     methods: {
@@ -56,7 +73,8 @@ export default {
                 this.arr.push({ "id": this.id++, "message": this.message, "status": this.status });
                 this.message = "";
             } else {
-                alert("Please enter something");
+                this.$refs.input.focus();
+                this.showBackdrop = !this.showBackdrop;
             }
         },
         updateStatus(arr) {

@@ -1,10 +1,11 @@
 <template>
-<ToDo/>
+<ToDo task="This is my ToDo list"/>
   
 </template>
 
 <script>
 import ToDo from './components/ToDo.vue';
+
 
 export default {
   name: 'App',
