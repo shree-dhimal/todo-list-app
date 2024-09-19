@@ -1,5 +1,9 @@
 <template>
     <div class="todo-container">
+        <button @click="shoDiv(1)">TODO Application</button>
+        <button @click="shoDiv(2)">Calculator</button>
+        <button @click="shoDiv(3)">Play Reaction Game</button>
+        <div v-if="showTodo">
         <BackDrop v-if="showBackdrop" :showBackdrop="showBackdrop"/>
         <div class="title">
             <h1>{{task}}</h1>
@@ -20,6 +24,7 @@
                         <td v-if="!a.status" :class="{ done: a.status }">{{ a.message }}</td>
                         <td v-if="!a.status"><span class="notcompleted"></span></td>
                         <td v-if="!a.status"><button class="status-button" @click="updateStatus(a)">Completed</button></td>
+                        <td v-if="!a.status"><button class="status-button" @click="deleteTask(a)">Delete</button></td>
                     </tr>
                 </table>
             </div>
@@ -38,11 +43,24 @@
                 </table>
             </div>
         </div>
+        </div>
         <br>
         <br>
         <br>
         <hr>
+        <div v-if="showCalculator">
         <div><CalculatorPRO /></div>
+        </div>
+        <br>
+        <br>
+        <br>
+        <hr>
+        <div v-if="showGame">
+            <h1>Play Reaction Time</h1>
+            <button @click="start" :disabled="isPlaying">Start</button>
+            <BlockVue v-if="isPlaying" :delay="delay" @end="endGame" />
+            <ResultsVue :score="score" v-if="showResult" @exit="showResult = !showResult"/>
+        </div>
         
     </div>
 </template>
@@ -50,11 +68,14 @@
 <script>
 import BackDrop from './Backdrop.vue';
 import CalculatorPRO from './Calculator.vue';
+import BlockVue from './reaction-timer/Block.vue';
+import ResultsVue from './reaction-timer/Results.vue';
+
 
 export default {
     name: 'ToDo',
     components: {
-        BackDrop,CalculatorPRO
+        BackDrop,CalculatorPRO,BlockVue,ResultsVue
   },
     props: {
         task: String
@@ -65,6 +86,13 @@ export default {
             status: false,
             id: 0,
             showBackdrop: false,
+            isPlaying: false,
+            delay: null,
+            score: null,
+            showResult: false,
+            showTodo:false,
+            showCalculator:false,
+            showGame:false,
         };
     },
     methods: {
@@ -79,6 +107,41 @@ export default {
         },
         updateStatus(arr) {
             arr.status = !arr.status;
+        },
+        deleteTask(a) {
+            console.log(a.id);
+            
+            const index = this.arr.findIndex(item => item.id === a.id);
+            if (index !== -1) {
+            this.arr.splice(index, 1);
+            console.log(this.arr)
+            }
+        },
+        start() {
+            this.isPlaying = true;
+            this.delay = 2000 + Math.random() * 5000;
+            console.log(this.delay);
+            
+        },
+        endGame(reactionTime) {
+            this.isPlaying = false;
+            this.score = reactionTime;
+            this.showResult = true;
+        },
+        shoDiv(num) {
+            if (num == 1) {
+                this.showTodo = !this.showTodo;
+                this.showCalculator = false;
+                this.showGame = false;
+            } else if (num == 2) {
+                this.showCalculator = !this.showCalculator;
+                this.showTodo = false;
+                this.showGame = false;
+            } else if (num == 3) {
+                this.showGame = !this.showGame;
+                this.showTodo = false;
+                this.showCalculator = false;
+            }
         }
     }
 }
@@ -211,4 +274,60 @@ th {
 .notcompleted::after {
     transform: rotate(-45deg);
 }
+/* General button styling */
+button {
+    padding: 10px 15px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+/* Specific button styling */
+.add-button {
+    background-color: #28a745;
+}
+
+.add-button:hover {
+    background-color: #218838;
+}
+
+.status-button {
+    padding: 5px 10px;
+    font-size: 14px;
+    background-color: #007bff;
+}
+
+.status-button:hover {
+    background-color: #0056b3;
+}
+
+/* Buttons in the top section */
+.todo-container button {
+    margin: 10px;
+    font-size: 18px;
+}
+
+/* Additional style for completed task buttons */
+.completed-section .status-button {
+    background-color: #ffc107;
+}
+
+.completed-section .status-button:hover {
+    background-color: #e0a800;
+}
+
 </style>
